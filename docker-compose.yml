@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+      - smtp
+    environment:
+      SPRING_MAIL_HOST: smtp
+      SPRING_MAIL_PORT: 1025
+    networks:
+      - finservice_network
+    restart: always
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: bankingapp             
+      MYSQL_PASSWORD: root                   
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"                          
+    networks:
+      - finservice_network
+    restart: always
+    
+  smtp:
+    image: mailhog/mailhog
+    container_name: smtp
+    ports:
+      - "1025:1025"  # MailHog SMTP port
+      - "8025:8025"  # MailHog Web interface for viewing mails
+    networks:
+      - finservice_network
+    restart: always
+
+
+networks:
+  finservice_network:
+    driver: bridge
